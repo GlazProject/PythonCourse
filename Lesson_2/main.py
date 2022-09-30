@@ -1,38 +1,33 @@
-def words_counter(filename, dict):
+def words_counter(filename, initial_dictionary=None):
+    if initial_dictionary is None:
+        initial_dictionary = {}
     with open(filename, 'r', encoding='cp1251') as file:
+        # TODO Изменить проход по файлу и формирование словаря в линейный поиск
         all_words = [w.strip().casefold() for w in file.read().split(' ')]
         for word in all_words:
-            if word not in dict:
-                dict[word] = {
+            if word not in initial_dictionary:
+                initial_dictionary[word] = {
                     'count': 0,
                     'doc': set()
                 }
-            dict[word]['count'] += 1
-            dict[word]['doc'].add(hash(filename))
-    return dict
+            initial_dictionary[word]['count'] += 1
+            initial_dictionary[word]['doc'].add(hash(filename))
+    return initial_dictionary
 
 
-def tf(dict):
-    total_count = len(dict)
+def tf_idf(all_words_dictionary):
+    total_count = len(all_words_dictionary)
     tf_dictionary = {}
-    for w, c in dict:
+    for w, c in all_words_dictionary:
         tf_dictionary[w] = c['count'] / total_count
+    # TODO Написать алгоритм idf
     return tf_dictionary
 
 
-def idf(dict, tf_dict):
-    tf_idf_dict = {}
-    files = {}
-    for k, v in dict:
-        if v['doc'] not in files:
-            files[v['doc']]
-
-
 if __name__ == '__main__':
-    dictionary = {}
-    dictionary = words_counter('voyna-i-mir-tom-1.txt', dictionary)
+    dictionary = words_counter('voyna-i-mir-tom-1.txt')
     print(len(dictionary))
     dictionary = words_counter('Tolstoy Lev. Anna Karenina - BooksCafe.Net.txt', dictionary)
     print(len(dictionary))
-
-    # print(dictionary)
+    # TODO Написать вызов функций составления idf словаря
+    # TODO Написать функцию для красивого вывода словаря в консоль
