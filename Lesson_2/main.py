@@ -1,8 +1,10 @@
 import math
+import string
+import re
 
 
 def txt_file(filename: str) -> str:
-    if '.txt' not in filename:
+    if not filename.endswith('.txt'):
         filename += '.txt'
     return filename
 
@@ -25,34 +27,25 @@ def write_in_dictionary(words_dictionary: dict, word: str, file_name: str):
     words_dictionary[word]['files'][file_hash] += 1
 
 
-def create_dictionary_from_file(filename: str, initial_dictionary: dict = None, separator: str = None) -> dict:
+def create_dictionary_from_file(filename: str, initial_dictionary: dict = None) -> dict:
     # Инициализация параметров по умолчанию
     if initial_dictionary is None:
         initial_dictionary = {}
-    if separator is None:
-        separator = ' .,;:{}[]()*&^%$#@!?<>|+=\"\'\n-\\'
 
     # Получение данных из файла
     with open(txt_file(filename), 'r', encoding='cp1251') as file:
         text = file.read()
 
-    # Составление словаря за линейный проход по тексту
-    start_index = 0
-    for i in range(len(text)):
-        if (text[i] in separator) or (i == len(text) - 1):
-            word = text[start_index:i]
-            if len(word) > 0:
-                write_in_dictionary(initial_dictionary, word, filename)
-            start_index = i + 1
+    # Составление словаря
+    words = re.finditer(r"\b\w+-?\w+\b", text, re.MULTILINE)
+    for matchNum, word in enumerate(words, start=1):
+        write_in_dictionary(initial_dictionary, word.group(), filename)
 
     return initial_dictionary
 
 
 def get_total_words_count(words_dictionary: dict) -> int:
-    count = 0
-    for key in words_dictionary:
-        count += words_dictionary[key]['count']
-    return count
+    return sum(value['count'] for value in words_dictionary.values())
 
 
 def get_documents_count(words_dictionary: dict) -> int:
@@ -110,7 +103,7 @@ def read_files(filenames: list[str], words_dictionary: dict = None) -> dict:
     return words_dictionary
 
 
-if __name__ == '__main__':
+def main():
     print('[INFO] Start')
     filenames_for_reading = [
         'voyna-i-mir-tom-1',
@@ -125,3 +118,7 @@ if __name__ == '__main__':
     # print_words_in_console(handled_dictionary)
     print_words_in_file(handled_dictionary, 'dictionary.txt')
     print('OK')
+
+
+if __name__ == '__main__':
+    main()
