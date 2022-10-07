@@ -8,7 +8,7 @@ def txt_file(filename: str) -> str:
 
 
 def write_in_dictionary(words_dictionary: dict, word: str, file_name: str):
-    word = word.casefold()
+    word = word.casefold().replace(' ', ' ')
 
     # Добавление нового слова или обновление количества в словарь
     if word not in words_dictionary:
@@ -30,7 +30,7 @@ def create_dictionary_from_file(filename: str, initial_dictionary: dict = None, 
     if initial_dictionary is None:
         initial_dictionary = {}
     if separator is None:
-        separator = ' .,;:{}[]()*&^%$#@!?<>|+=\"\'\n-'
+        separator = ' .,;:{}[]()*&^%$#@!?<>|+=\"\'\n-\\'
 
     # Получение данных из файла
     with open(txt_file(filename), 'r', encoding='cp1251') as file:
@@ -96,14 +96,32 @@ def print_words_in_console(tf_idf_dictionary: dict):
 
 
 def print_words_in_file(tf_idf_dictionary: dict, filename: str):
+    print('[INFO] Запись в файл... ')
     with open(txt_file(filename), 'w', encoding='utf8') as file:
         file.write(get_output(tf_idf_dictionary))
 
 
+def read_files(filenames: list[str], words_dictionary: dict = None) -> dict:
+    if words_dictionary is None:
+        words_dictionary = {}
+    for filename in filenames:
+        words_dictionary = create_dictionary_from_file(filename, words_dictionary)
+        print(f'[INFO] Обработан "{filename}"')
+    return words_dictionary
+
+
 if __name__ == '__main__':
-    dictionary = create_dictionary_from_file('voyna-i-mir-tom-1')
-    dictionary = create_dictionary_from_file('Tolstoy Lev. Anna Karenina - BooksCafe.Net.txt', dictionary)
+    print('[INFO] Start')
+    filenames_for_reading = [
+        'voyna-i-mir-tom-1',
+        'Tolstoy Lev. Anna Karenina - BooksCafe.Net.txt',
+        'istoriya-gosudarstva-rossiyskogo-tom-1.txt',
+        'Dostoevskiy Fedor. Prestuplenie i nakazanie - BooksCafe.Net.txt'
+    ]
+
+    dictionary = read_files(filenames_for_reading)
     handled_dictionary = tf_idf(dictionary)
+
     # print_words_in_console(handled_dictionary)
     print_words_in_file(handled_dictionary, 'dictionary.txt')
     print('OK')
